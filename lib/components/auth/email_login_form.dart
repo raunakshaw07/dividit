@@ -1,16 +1,20 @@
-import 'package:dividit/auth/auth_service.dart';
+
+import 'package:dividit/controllers/auth_controller.dart';
+import 'package:dividit/routes/app_routes.dart';
+import 'package:dividit/types/AppResponse.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class EmailLoginForm extends StatefulWidget {
   final bool isLogin;
-  const EmailLoginForm({Key? key, required this.isLogin}) : super(key: key);
+  const EmailLoginForm({super.key, required this.isLogin});
 
   @override
   State<EmailLoginForm> createState() => _EmailLoginFormState();
 }
 
 class _EmailLoginFormState extends State<EmailLoginForm> {
-  final _authService = AuthService();
+  final _authController = AuthController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -21,65 +25,60 @@ class _EmailLoginFormState extends State<EmailLoginForm> {
   @override
   void initState() {
     super.initState();
-
-    // Listen for blur event on confirm password field
     _confirmPasswordFocusNode.addListener(() {
-      if (!_confirmPasswordFocusNode.hasFocus) {
-        setState(() {
-          _showPasswordValidation = true;
-        });
-      }
+      setState(() {
+        _showPasswordValidation = true;
+      });
     });
   }
 
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
-    _confirmPasswordFocusNode.dispose();
-    super.dispose();
-  }
-
-  /// Basic email format validation
   bool isValidEmail(String email) {
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     return emailRegex.hasMatch(email);
   }
 
-  /// Sign-up handler with all validations
   void _handleSignUp() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
     final confirmPassword = _confirmPasswordController.text.trim();
 
     if (email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
-      _showSnackbar("⚠️ All fields are required.");
+      Get.snackbar("⚠️ Validation Error", "All fields are required.");
       return;
     }
 
     if (!isValidEmail(email)) {
-      _showSnackbar("⚠️ Enter a valid email address.");
+      Get.snackbar("⚠️ Validation Error", "Enter a valid email address.");
       return;
     }
 
     if (password.length < 6) {
-      _showSnackbar("⚠️ Password must be at least 6 characters.");
+      Get.snackbar(
+        "⚠️ Validation Error",
+        "Password must be at least 6 characters.",
+      );
       return;
     }
 
     if (password != confirmPassword) {
-      _showSnackbar("❌ Passwords do not match.");
+      Get.snackbar("❌ Mismatch", "Passwords do not match.");
       return;
     }
 
     try {
-      await _authService.signInWithEmailPassword(email, password);
-      // Optional: show success message or navigate
-    } catch (e) {
-      if (mounted) {
-        _showSnackbar("❌ Error: $e");
+      final AppResponse response = await _authController
+          .signUpWithEmailPassword(email, password);
+
+      final user = response.user;
+      if (user == null) {
+        Get.snackbar("❌ Error", response.error as String);
+        return;
       }
+
+      Get.snackbar("✅ Success", response.message as String);
+      Get.toNamed(AppRoutes.userInfo);
+    } catch (e) {
+      Get.snackbar("❌ Error", "$e");
     }
   }
 
@@ -87,29 +86,24 @@ class _EmailLoginFormState extends State<EmailLoginForm> {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
-    // print("$email - $password");
-
     if (email.isEmpty || password.isEmpty) {
-      _showSnackbar("⚠️ Email and password cannot be empty.");
+      Get.snackbar(
+        "⚠️ Validation Error",
+        "Email and password cannot be empty.",
+      );
       return;
     }
 
     try {
-      await _authService.signInWithEmailPassword(email, password);
+      await _authController.signInWithEmailPassword(email, password);
+      Get.toNamed(AppRoutes.home);
     } catch (e) {
       if (mounted) {
-        _showSnackbar("❌ Error: $e");
+        Get.snackbar("❌ Error", "$e");
       }
     }
   }
 
-  void _showSnackbar(String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
-  }
-
-  /// Password match validation UI
   Widget buildPasswordValidationMessage() {
     final password = _passwordController.text;
     final confirmPassword = _confirmPasswordController.text;
@@ -132,6 +126,15 @@ class _EmailLoginFormState extends State<EmailLoginForm> {
   }
 
   @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _confirmPasswordFocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Center(
       child: ConstrainedBox(
@@ -151,7 +154,6 @@ class _EmailLoginFormState extends State<EmailLoginForm> {
                 keyboardType: TextInputType.emailAddress,
               ),
               const SizedBox(height: 16),
-
               TextField(
                 controller: _passwordController,
                 decoration: const InputDecoration(
@@ -162,7 +164,6 @@ class _EmailLoginFormState extends State<EmailLoginForm> {
                 onChanged: (_) => setState(() {}),
               ),
               const SizedBox(height: 16),
-
               if (!widget.isLogin)
                 TextField(
                   controller: _confirmPasswordController,
@@ -173,11 +174,9 @@ class _EmailLoginFormState extends State<EmailLoginForm> {
                   ),
                   obscureText: true,
                 ),
-
               const SizedBox(height: 10),
               if (!widget.isLogin) buildPasswordValidationMessage(),
               const SizedBox(height: 30),
-
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
