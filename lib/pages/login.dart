@@ -1,6 +1,6 @@
-import 'package:dividit/auth/auth_service.dart';
-import 'package:dividit/components/home/email_login_form.dart';
-import 'package:dividit/components/home/phone_otp_login_form.dart';
+import 'package:dividit/controllers/auth_controller.dart';
+import 'package:dividit/components/auth/email_login_form.dart';
+import 'package:dividit/components/auth/phone_otp_login_form.dart';
 import 'package:dividit/pages/sign_up.dart';
 import 'package:flutter/material.dart';
 
@@ -12,7 +12,7 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  final _authService = AuthService();
+  final _authController = AuthController();
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +89,7 @@ class _LoginState extends State<Login> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  onPressed: () => _authService.signInWithGoogle(),
+                  onPressed: () => _authController.signInWithGoogle(true),
                 ),
                 const SizedBox(height: 24),
                 GestureDetector(

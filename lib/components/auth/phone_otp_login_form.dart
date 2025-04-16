@@ -1,5 +1,6 @@
-import 'package:dividit/auth/auth_service.dart';
+import 'package:dividit/controllers/auth_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class PhoneOtpLoginForm extends StatefulWidget {
   final bool isLogin;
@@ -12,7 +13,7 @@ class PhoneOtpLoginForm extends StatefulWidget {
 class _PhoneOtpLoginFormState extends State<PhoneOtpLoginForm> {
   final _phoneController = TextEditingController();
   final _otpController = TextEditingController();
-  final AuthService _authService = AuthService();
+  final AuthController _authController = Get.find<AuthController>();
 
   bool _otpSent = false;
   bool _isLoading = false;
@@ -21,18 +22,18 @@ class _PhoneOtpLoginFormState extends State<PhoneOtpLoginForm> {
     final phone = _phoneController.text.trim();
 
     if (phone.isEmpty) {
-      _showSnackbar("Please enter a phone number");
+      Get.snackbar("⚠️ Validation Error", "Please enter a phone number");
       return;
     }
 
     setState(() => _isLoading = true);
     try {
-      // print(phone);
-      await _authService.signInWithPhone("+91$phone");
+      await _authController.signInWithPhone("+91$phone");
       setState(() => _otpSent = true);
-      _showSnackbar("OTP sent to $phone");
+      Get.snackbar("✅ OTP sent to $phone", "");
     } catch (e) {
-      _showSnackbar("Error sending OTP: $e");
+      setState(() => _otpSent = true);
+      Get.snackbar("❌ Error", "Error sending OTP: $e");
     } finally {
       setState(() => _isLoading = false);
     }
@@ -49,12 +50,10 @@ class _PhoneOtpLoginFormState extends State<PhoneOtpLoginForm> {
 
     setState(() => _isLoading = true);
     try {
-      await _authService.verifyPhoneOtp(phoneNumber: phone, otp: otp);
-      _showSnackbar(
-        "✅ Phone ${widget.isLogin ? 'login' : 'signup'} successful",
-      );
+      await _authController.verifyPhoneOtp(phoneNumber: phone, otp: otp, isLogin: widget.isLogin);
+      Get.snackbar("✅ Success", "Phone ${widget.isLogin ? 'login' : 'signup'} successful");
     } catch (e) {
-      _showSnackbar("Error verifying OTP: $e");
+      Get.snackbar( "❌ Error", "Error verifying OTP: $e");
     } finally {
       setState(() => _isLoading = false);
     }
@@ -81,7 +80,7 @@ class _PhoneOtpLoginFormState extends State<PhoneOtpLoginForm> {
                 controller: _phoneController,
                 decoration: const InputDecoration(
                   labelText: "Phone Number",
-                  prefixText: "+91 ", // Customize based on your region
+                  prefixText: "+91 ",
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.phone,
@@ -103,6 +102,11 @@ class _PhoneOtpLoginFormState extends State<PhoneOtpLoginForm> {
                     onPressed: _otpSent ? _verifyOtp : _sendOtp,
                     child: Text(_otpSent ? "Verify OTP" : "Send OTP"),
                   ),
+              if (_otpSent)
+                TextButton(
+                  onPressed: _isLoading ? null : _sendOtp,
+                  child: const Text("Resend OTP"),
+                ),
             ],
           ),
         ),
