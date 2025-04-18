@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:dividit/routes/app_routes.dart';
 import 'package:dividit/services/user_service.dart';
-import 'package:dividit/types/AppResponse.dart';
+import 'package:dividit/types/app_response.dart';
 import 'package:dividit/types/user.dart';
 import 'package:get/get.dart';
 

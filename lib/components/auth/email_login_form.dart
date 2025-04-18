@@ -1,7 +1,7 @@
 
 import 'package:dividit/controllers/auth_controller.dart';
 import 'package:dividit/routes/app_routes.dart';
-import 'package:dividit/types/AppResponse.dart';
+import 'package:dividit/types/app_response.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
