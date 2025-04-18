@@ -3,7 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../services/auth_service.dart';
 import '../routes/app_routes.dart';
 import '../controllers/user_controller.dart';
-import '../types/AppResponse.dart';
+import '../types/app_response.dart';
 
 class AuthController extends GetxController {
   final AuthService _authService = AuthService();
@@ -158,7 +158,6 @@ class AuthController extends GetxController {
         otp: otp,
       );
       if (response.user != null) {
-        // Get.offAllNamed(AppRoutes.userInfo);
         if (isLogin) {
           Get.toNamed(AppRoutes.home);
         } else {

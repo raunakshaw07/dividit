@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-import 'package:dividit/types/AppResponse.dart';
+import 'package:dividit/types/app_response.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' hide User;
 

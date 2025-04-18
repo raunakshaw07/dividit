@@ -176,19 +176,4 @@ class AuthService {
     userController.currentUser.value = null;
     await _supabaseClient.auth.signOut();
   }
-
-  // Future<Map<String, dynamic>?> fetchUserData(String userId) async {
-  //   try {
-  //     return await _supabaseClient
-  //         .from('users')
-  //         .select()
-  //         .eq('id', userId)
-  //         .limit(1)
-  //         .maybeSingle();
-  //   } catch (e) {
-  //     // print('Error fetching user data: $e');
-  //     print('From auth service: : ${e.toString()}');
-  //     return null;
-  //   }
-  // }
 }

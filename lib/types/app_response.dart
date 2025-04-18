@@ -33,7 +33,6 @@ class AppResponse {
     );
   }
 
-  // Optional: convert to JSON
   Map<String, dynamic> toMap() {
     return {
       "status": status,
